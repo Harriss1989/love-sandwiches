@@ -1,11 +1,12 @@
 import gspread
 from google.oauth2.service_account import Credentials
+from pprint import pprint
 
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive.file",
     "https://www.googleapis.com/auth/drive"
-    ]
+]
 
 CREDS = Credentials.from_service_account_file("creds.json")
 SCOPED_CREDS = CREDS.with_scopes(SCOPE)
@@ -26,9 +27,9 @@ def get_sales_data():
         print("Example: 10,20,30,40,50,60\n")
 
         data_str = input("Enter your data here: ")
-    
+
         sales_data = data_str.split(",")
-        
+
         if validate_data(sales_data):
             print("Data is valid!")
             break
@@ -51,10 +52,11 @@ def validate_data(values):
     except ValueError as e:
         print(f"Invalid data: {e}, please try again.\n")
         return False
-    
+
     return True
 
-def  update_sales_worksheet(data):
+
+def update_sales_worksheet(data):
     """
     Update sales worksheet, add new row with the list data provided.
     """
@@ -64,7 +66,30 @@ def  update_sales_worksheet(data):
     print("sales worksheet update successfully.\n")
 
 
-data = get_sales_data()
-sales_data = [int(num) for num in data]
-update_sales_worksheet(sales_data)
+def calculate_surplus_data(sales_row):
+    """
+   Compare sales with stock and calcluate the serplus for each item type.
 
+   The surplus is defined as teh sales figure subtracted from the stock:
+    - Positive surplus indecates waste
+    - Negative surplus indecates extra made when stock was sold out.
+    """
+    print("Calculating surplus data ...\n")
+    stock = SHEET.worksheet("stock").get_all_values()
+    stock_row = stock[-1]
+    print(stock_row)
+    
+
+
+def main():
+    """
+    Run all program functions
+    """
+    data = get_sales_data()
+    sales_data = [int(num) for num in data]
+    update_sales_worksheet(sales_data)
+    calculate_surplus_data(sales_data)
+
+
+print("Welcome to Love Sandwiches Data Automation")
+main()
